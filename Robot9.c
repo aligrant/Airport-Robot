@@ -24,7 +24,7 @@ task main()
     SensorMode[S4] = modeEV3Gyro_RateAndAngle;
     wait1Msec(50);
 
-    nMotorEncoder(motorA)=10;
+    nMotorEncoder(motorA)=0;
 }
 
 void Drive(int speed)
