@@ -105,12 +105,49 @@ return colour
 void findLine(int colour)
 {
 
+
+
 }
 void goHome(string output, int colour){
 	//follows line backwards
+turn(1);
+turn(1);
+while(SensorValue[S1]!=colour){
+	//stops robot
+	Drive(0);
+	//turns 90 degrees right
+	turn(1);
+}
+//after turn run again
+goHome(colour);
 //prints string(could be error or success message
+displayString(2,output);
+}
+
+void followLine(int colour){
+if(SensorValue[S1]==colour){
+	//start drive
+Drive(50);}
+//if break(or turn) loop turns 90 degrees until sensor value is found
+int count=0;
+while(SensorValue[S1]!=colour){
+	//stops robot
+	Drive(0);
+	//turns 90 degrees right
+	turn(1);
+	count++;
+	//if has turned 4 times there is no line, go back to start
+	if(count==4){
+		goHome("Cannot find line", colour);
+	}
 
 }
+//after sensor value is found follow colour again
+//if just turned then will still be in correct direction
+followLine(colour);
+}
+
+
 /*FUNCTIONS
 
 main: get box coolour input to follow line function
@@ -169,6 +206,3 @@ waits to sense new package in loading zone
 if sees repeat, if not turns off
 
 */
-
-if (stickerColor(5))
-
