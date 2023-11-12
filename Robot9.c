@@ -37,8 +37,17 @@ while (nMotorEncoder[motorA]==
 	motor[motorA]=motor[motorD]=0;
 }
 
-void Turn(){
-
+void Turn(int angle, int speed){
+	if (angle < 0){
+		motor[motorA] = speed; //assume counterclockwise is "-"
+		motor[motorD] = (-1*speed);
+	}
+	
+	motor[motorA] = (-1 * speed);
+	motor[motorD] = speed;
+	while(getGyroDegrees(S4)<(angle))
+	{}
+	
 }
 
 void followLine(int colour)
