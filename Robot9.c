@@ -147,6 +147,18 @@ while(SensorValue[S1]!=colour){
 followLine(colour);
 }
 
+void turn(int angle, int speed){
+	if (angle < 0){
+		motor[motorA] = speed; //assume counterclockwise is "-"
+		motor[motorD] = (-1*speed);
+	}
+	
+	motor[motorA] = (-1 * speed);
+	motor[motorD] = speed;
+	while(getGyroDegrees(S4)<(angle))
+	{}
+	
+}
 
 /*FUNCTIONS
 
