@@ -24,11 +24,17 @@ task main()
     SensorMode[S4] = modeEV3Gyro_RateAndAngle;
     wait1Msec(50);
 
+    nMotorEncoder(motorA)=0;
 }
 
 void Drive(int speed)
 {
+while (nMotorEncoder[motorA]==
+	(
+	motor[motorA]=motor[motorD]=speed;
+	)
 
+	motor[motorA]=motor[motorD]=0;
 }
 
 void Turn(){
@@ -40,8 +46,62 @@ void followLine(int colour)
 	}
 void Claw(bool open_or_close){
 	}
-int stickerColor(){
+
+int stickerColour(int colour)
+{
+	if (SensorValue[S1]==5)
+	{
+	colour=5;
+	}
+	if (SensorValue[S1]==4)
+	{
+	colour=4;
+	}
+	if (SensorValue[S1]==3)
+	{
+	colour=3;
+	}
+	if (SensorValue[S1]==2)
+	{
+	colour=2;
+	}
+	else
+	{
+		displayString(5,"No colour")
+	}
+		return colour;
+/*
+if (SensorValue[S1]==colour)
+{
+	displayString(5,"Colour: ");
+		colour=colour1;
 }
+
+if (SensorValue[S1]==colour2)
+{
+	displayString(5,"Colour: ");
+		colour=colour2;
+}
+if (SensorValue[S1]==colour3)
+{
+	displayString(5,"Colour: ");
+		colour=colour3;
+}
+if (SensorValue[S1]==colour4)
+{
+	displayString(5,"Colour: ");
+	colour=colour4;
+}
+if (SensorValue[S1]==0]
+{
+	displayString(5,"No Colour");
+	colour=0;
+}
+
+return colour
+*/
+}
+
 void findLine(int colour)
 {
 
@@ -109,3 +169,6 @@ waits to sense new package in loading zone
 if sees repeat, if not turns off
 
 */
+
+if (stickerColor(5))
+
