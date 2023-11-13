@@ -53,8 +53,24 @@ void Turn(int angle, int speed){
 void followLine(int colour)
 {
 	}
-void Claw(bool open_or_close){
+
+void claw(bool open_close){
+	if (open_close)
+	{
+		motor[motorC] = 50;
+		wait1Msec(5000);//need further testing for calues
+		motor[motorC] = 0;//opens the claw when true 
+	} 
+	else if (!open)
+	{
+		motor[motorC] = -50;//closes claw when false
+		wait1Msec(5000);
+		motor[motorC] = 0;
 	}
+}//void
+
+
+
 
 int stickerColour(int colour)
 {
@@ -110,6 +126,9 @@ if (SensorValue[S1]==0]
 return colour
 */
 }
+
+
+
 
 void findLine(int colour)
 {
