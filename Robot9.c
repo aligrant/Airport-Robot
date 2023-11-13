@@ -156,8 +156,6 @@ while(SensorValue[S1]!=colour){
 followLine(colour);
 }
 
-
-
 /*FUNCTIONS
 
 main: get box coolour input to follow line function
