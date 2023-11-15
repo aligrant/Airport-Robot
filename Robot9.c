@@ -29,25 +29,20 @@ task main()
 
 void Drive(int speed)
 {
-while (nMotorEncoder[motorA]==
-	(
 	motor[motorA]=motor[motorD]=speed;
-	)
 
-	motor[motorA]=motor[motorD]=0;
-}
 
 void Turn(int angle, int speed){
 	if (angle < 0){
 		motor[motorA] = speed; //assume counterclockwise is "-"
 		motor[motorD] = (-1*speed);
 	}
-	
+
 	motor[motorA] = (-1 * speed);
 	motor[motorD] = speed;
 	while(getGyroDegrees(S4)<(angle))
 	{}
-	
+
 }
 
 void followLine(int colour)
@@ -58,7 +53,16 @@ void Claw(bool open_or_close){
 
 int stickerColour(int colour)
 {
-	if (SensorValue[S1]==5)
+SensorValue[S1]= colour;
+if (colour==1 || colour==3 || colour==5)
+{
+followLine(colour);
+return colour;
+}
+displayString(5,"No colour")
+}
+/*
+if (SensorValue[S1]==5)
 	{
 	colour=5;
 	}
@@ -77,40 +81,12 @@ int stickerColour(int colour)
 	else
 	{
 		displayString(5,"No colour")
+		goHome()
 	}
-		return colour;
-/*
-if (SensorValue[S1]==colour)
-{
-	displayString(5,"Colour: ");
-		colour=colour1;
+	followLine(colour)
+	return colour;
 }
-
-if (SensorValue[S1]==colour2)
-{
-	displayString(5,"Colour: ");
-		colour=colour2;
-}
-if (SensorValue[S1]==colour3)
-{
-	displayString(5,"Colour: ");
-		colour=colour3;
-}
-if (SensorValue[S1]==colour4)
-{
-	displayString(5,"Colour: ");
-	colour=colour4;
-}
-if (SensorValue[S1]==0]
-{
-	displayString(5,"No Colour");
-	colour=0;
-}
-
-return colour
 */
-}
-
 void findLine(int colour)
 {
 
@@ -156,6 +132,33 @@ while(SensorValue[S1]!=colour){
 followLine(colour);
 }
 
+void ultrasonic(double distance)
+{
+	while ()
+{
+		if (Sensorvalue[S2]>distance)
+		{
+			Drive(50)
+		}
+			else
+			{
+				timer1[T1]=0;
+				while (timer1[T1]<30000||SensorValue[S2]<distance)
+				{
+					Drive(0);
+					if (sensorValue[S2]>distance)
+					{
+							Drive(50);
+					}
+					}
+if (timer1[T1]==30000 && SensorValue[S2]<=distance)
+{
+	goHome()
+}
+
+}
+
+void goofy(
 /*FUNCTIONS
 
 main: get box coolour input to follow line function
