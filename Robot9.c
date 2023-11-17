@@ -59,34 +59,15 @@ if (colour==1 || colour==3 || colour==5)
 followLine(colour);
 return colour;
 }
+else
+{
+
 displayString(5,"No colour")
 }
-/*
-if (SensorValue[S1]==5)
-	{
-	colour=5;
-	}
-	if (SensorValue[S1]==4)
-	{
-	colour=4;
-	}
-	if (SensorValue[S1]==3)
-	{
-	colour=3;
-	}
-	if (SensorValue[S1]==2)
-	{
-	colour=2;
-	}
-	else
-	{
-		displayString(5,"No colour")
-		goHome()
-	}
-	followLine(colour)
-	return colour;
 }
-*/
+
+
+
 void findLine(int colour)
 {
 
@@ -158,7 +139,30 @@ if (timer1[T1]==30000 && SensorValue[S2]<=distance)
 
 }
 
-void goofy(
+void goofy()
+
+
+task main()
+{
+	configuresensors
+while (getButtonPress(ENTER_BUTTON))
+{
+	//ultrasonic
+	claw(0)
+	stickercolour()
+	claw(1)
+	gohome()
+	timer1[T1]=0;
+	while(timer1[T1]<20000||!getButtonPress(ENTER_BUTTON))
+	{}
+}
+}
+
+
+
+
+
+
 /*FUNCTIONS
 
 main: get box coolour input to follow line function
