@@ -30,9 +30,10 @@ task main()
 void Drive(int speed)
 {
 	motor[motorA]=motor[motorD]=speed;
+}
 
-
-void Turn(int angle, int speed){
+void Turn(int angle, int speed)
+{
 	if (angle < 0){
 		motor[motorA] = speed; //assume counterclockwise is "-"
 		motor[motorD] = (-1*speed);
@@ -45,9 +46,7 @@ void Turn(int angle, int speed){
 
 }
 
-void followLine(int colour)
-{
-	}
+
 void Claw(bool open_or_close){
 	}
 
@@ -68,12 +67,6 @@ displayString(5,"No colour")
 
 
 
-void findLine(int colour)
-{
-
-
-
-}
 void goHome(string output, int colour){
 	//follows line backwards
 turn(1);
@@ -90,10 +83,12 @@ goHome(colour);
 displayString(2,output);
 }
 
+
 void followLine(int colour){
 if(SensorValue[S1]==colour){
 	//start drive
 Drive(50);}
+ultrasonic(10)
 //if break(or turn) loop turns 90 degrees until sensor value is found
 int count=0;
 while(SensorValue[S1]!=colour){
@@ -112,6 +107,7 @@ while(SensorValue[S1]!=colour){
 //if just turned then will still be in correct direction
 followLine(colour);
 }
+
 
 void ultrasonic(double distance)
 {
@@ -140,6 +136,29 @@ if (timer1[T1]==30000 && SensorValue[S2]<=distance)
 }
 
 void goofy()
+{
+	if (motor[motorA]==motor[motorD]==0)
+{
+	motor[motorA]=50;
+	motor[motorD]=-50;
+	wait1Msec(3000);
+	
+	motor[motorD]=50;
+	motor[motorA]=-50;
+	wait1Msec (3000);
+	
+	motor[motorA]=70;
+	motor[motorD]=-70;
+	wait1Msec(1000);
+	
+	motor[motorD]=70;
+	motor[motorA]=-70;
+	wait1Msec(1000);
+	}	
+	
+	
+	
+}
 
 
 task main()
@@ -147,7 +166,6 @@ task main()
 	configuresensors
 while (getButtonPress(ENTER_BUTTON))
 {
-	//ultrasonic
 	claw(0)
 	stickercolour()
 	claw(1)
@@ -156,6 +174,7 @@ while (getButtonPress(ENTER_BUTTON))
 	while(timer1[T1]<20000||!getButtonPress(ENTER_BUTTON))
 	{}
 }
+goofy()
 }
 
 
