@@ -20,55 +20,59 @@ void Turn(int angle, int speed)//trial
 
 
 void claw(bool open){//non-trivial
-	if (open)
+	if (open)//close
 	{
 		motor[motorC] = -20;
-		wait1Msec(5000);
+		wait1Msec(2000);
 		motor[motorC] = 0;
 	} 
-	else if (!open)
+	else if (!open)// open
 	{
 		motor[motorC] = 20;
-		wait1Msec(5000);
+		wait1Msec(2000);
 		motor[motorC] = 0;
 	}
 }//void
 
-int stickerColour(int colour){//non-trival
-SensorValue[S1] = colour;
 
-if (colour != 1 || colour != 3 || colour != 5 ){
+int stickerColour(){//non-trival
+int colour;
+wait1Msec(1000);
+colour = SensorValue[S1];
+wait1Msec(1000);
+
+if (colour == 5){//red
+	displayString(3, "The color you have selected:");
+	displayString(5, "Red");
+	wait1Msec(5000);
+} else if (colour == 3){
+	displayString(3, "The color you have selected:");
+	displayString(5, "Green");
+} else if (colour == 1){
+	displayString(3, "The color you have selected:");
+	displayString(5, "Black");
+} else {
 	colour = 10;
 	displayString(3, "No colour detected");
 	
-	motor[motorA]= - 50;
-	motor[motorD] = 50;
-	while(SensorValue[S4] < 180){}
-	
-	displayString(5,"Error Code: 10");
+	resetGyro(S4);
+	motor[motorA]= -12;
+	motor[motorD] = 12;
+	while(SensorValue[S4] > 180){}
+	displayString(3, "Error Code");
+	displayString(5, ":10");
 	return colour;
 }
 
-if (colour = 5){
-	String display_color = "Red";
-}
+wait1Msec(5000);
+eraseDisplay();
 
-if (colour = 3){
-	String display_color = "Green";
-}
-
-if (colour = 1){
-	String display_color = "Black";
-}
-
-
-displayString(3, "The color you have selected:")
-displayString(5, display_color);
 displayString(7, "Enter to continue");
-while(!getButtonPress(ENTER_BUTTON)){}	
+while(!getButtonPress(ENTER_BUTTON)){}
 while(getButtonPress(ENTER_BUTTON)){}
 return colour;
-}
+}//sticker
+
 
 
 
