@@ -1,10 +1,10 @@
-void Drive(int speed)//trivial
+void Drive(int speed)//trivial  TESTED
 {
 	motor[motorA]=motor[motorD]=speed;
 }
 
 
-void Turn(int angle, int speed)//trial
+void Turn(int angle, int speed)//trivial TESTED
 {
 	if (angle < 0){
 		motor[motorA] = speed; //assume counterclockwise is "-"
@@ -19,15 +19,24 @@ void Turn(int angle, int speed)//trial
 }
 
 
-void claw(bool open){//non-trivial
-	if (open)//close
+void claw_axis(bool open){//non-trivial  TESTED
+	if (open)//close and go up
 	{
 		motor[motorC] = -20;
 		wait1Msec(2000);
 		motor[motorC] = 0;
+		
+		motor[motorB] = 20;
+		wait1Msec(2000);
+		motor[motorB] = 0;
 	} 
-	else if (!open)// open
+	else if (!open)// go down then open
 	{
+		
+		motor[motorB] = -20;
+		wait1Msec(2000);
+		motor[motorB] = 0;
+	
 		motor[motorC] = 20;
 		wait1Msec(2000);
 		motor[motorC] = 0;
@@ -35,7 +44,7 @@ void claw(bool open){//non-trivial
 }//void
 
 
-int stickerColour(){//non-trival
+int stickerColour(){//non-trival  TESTED
 int colour;
 wait1Msec(1000);
 colour = SensorValue[S1];
@@ -76,7 +85,7 @@ return colour;
 
 
 
-void goHome(string output, int colour){//non-trivial
+void goHome(string output, int colour){//non-trivial  NEED WORK
 	//follows line backwards
 turn(1);
 turn(1);
@@ -93,7 +102,7 @@ displayString(2,output);
 }
 
 
-void followLine(int colour){//non-trivial
+void followLine(int colour){//non-trivial NEED WORK
 if(SensorValue[S1]==colour){
 	//start drive
 Drive(50);}
@@ -117,8 +126,8 @@ while(SensorValue[S1]!=colour){
 followLine(colour);
 }
 
-int ultrasonic(){
-	const int MAX = 10;
+int ultrasonic(){//non-trivial NEED WORK
+	const int MAX = 20;
 	int distance = SensorValue[S2];
 	if (distance > MAX)
 	{
@@ -168,7 +177,7 @@ void goofy()//non-trivial
 	}	
 }
 
-int menu(){//non trivial
+int menu(){//non trivial  TESTED 
 int packages = 1;
 displayString(3, "Please Pick a mode");
 displayString(5, "Left Button: PLANE");
