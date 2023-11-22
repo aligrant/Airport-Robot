@@ -1,6 +1,224 @@
+void Drive(int speed)//trivial
+{
+	motor[motorA]=motor[motorD]=speed;
+}
+
+
+void Turn(int angle, int speed)//trial
+{
+	if (angle < 0){
+		motor[motorA] = speed; //assume counterclockwise is "-"
+		motor[motorD] = (-1*speed);
+	}
+
+	motor[motorA] = (-1 * speed);
+	motor[motorD] = speed;
+	while(getGyroDegrees(S4)<(angle))
+	{}
+
+}
+
+
+void claw(bool open){//non-trivial
+	if (open)
+	{
+		motor[motorC] = -20;
+		wait1Msec(5000);
+		motor[motorC] = 0;
+	} 
+	else if (!open)
+	{
+		motor[motorC] = 20;
+		wait1Msec(5000);
+		motor[motorC] = 0;
+	}
+}//void
+
+int stickerColour(int colour){//non-trival
+SensorValue[S1] = colour;
+
+if (colour != 1 || colour != 3 || colour != 5 ){
+	colour = 10;
+	displayString(3, "No colour detected");
+	
+	motor[motorA]= - 50;
+	motor[motorD] = 50;
+	while(SensorValue[S4] < 180){}
+	
+	displayString(5,"Error Code: 10");
+	return colour;
+}
+
+if (colour = 5){
+	String display_color = "Red";
+}
+
+if (colour = 3){
+	String display_color = "Green";
+}
+
+if (colour = 1){
+	String display_color = "Black";
+}
+
+
+displayString(3, "The color you have selected:")
+displayString(5, display_color);
+displayString(7, "Enter to continue");
+while(!getButtonPress(ENTER_BUTTON)){}	
+while(getButtonPress(ENTER_BUTTON)){}
+return colour;
+}
+
+
+
+void goHome(string output, int colour){//non-trivial
+	//follows line backwards
+turn(1);
+turn(1);
+while(SensorValue[S1]!=colour){
+	//stops robot
+	Drive(0);
+	//turns 90 degrees right
+	turn(1);
+}
+//after turn run again
+goHome(colour);
+//prints string(could be error or success message
+displayString(2,output);
+}
+
+
+void followLine(int colour){//non-trivial
+if(SensorValue[S1]==colour){
+	//start drive
+Drive(50);}
+ultrasonic(10)
+//if break(or turn) loop turns 90 degrees until sensor value is found
+int count=0;
+while(SensorValue[S1]!=colour){
+	//stops robot
+	Drive(0);
+	//turns 90 degrees right
+	turn(1);
+	count++;
+	//if has turned 4 times there is no line, go back to start
+	if(count==4){
+		goHome("Cannot find line", colour);
+	}
+
+}
+//after sensor value is found follow colour again
+//if just turned then will still be in correct direction
+followLine(colour);
+}
+
+int ultrasonic(){
+	const int MAX = 10;
+	int distance = SensorValue[S2];
+	if (distance > MAX)
+	{
+		return;
+	} 
+	else 
+	{
+		motor[motorA]=motor[motorD] = 0;
+		timer1[T1] = 0;
+		while(SensorValue[S4] < MAX || timer[T1] < 30000){}
+		
+		if (timer[T1] == 30000){
+			displayString(3, "Path is Blocked");
+			displayString(5, "Returning Home");
+			return 0;
+		}
+		
+		if (SensorValue[S4] > MAX){
+			displayString(3, "Path Clear");
+			displayString(5, "Enter to continue");
+			while(!getButtonPress(ENTER_BUTTON)){}
+			while(getButtonPress(ENTER_BUTTON)){}
+			return 1;
+		}
+	}
+}//ultrasonic
+
+void goofy()//non-trivial
+{
+	if (motor[motorA]==motor[motorD]==0)
+{
+	motor[motorA]=50;
+	motor[motorD]=-50;
+	wait1Msec(3000);
+	
+	motor[motorD]=50;
+	motor[motorA]=-50;
+	wait1Msec (3000);
+	
+	motor[motorA]=70;
+	motor[motorD]=-70;
+	wait1Msec(1000);
+	
+	motor[motorD]=70;
+	motor[motorA]=-70;
+	wait1Msec(1000);
+	}	
+}
+
+int menu(){//non trivial
+int packages = 1;
+displayString(3, "Please Pick a mode");
+displayString(5, "Left Button: PLANE");
+displayString(7, "Right Button: # packages");
+
+	while((!getButtonPress(RIGHT_BUTTON))&&(!getButtonPress(LEFT_BUTTON))){}
+		if (getButtonPress(RIGHT_BUTTON)){
+			eraseDisplay();
+			displayString(3, "Num packages: %d", packages);
+
+	while(!getButtonPress(ENTER_BUTTON)){
+		if (getButtonPress(UP_BUTTON)){
+			eraseDisplay();
+			packages++;
+			displayString(3, "Num packages: %d", packages);
+			wait1Msec(1000);
+		}//if
+
+		if (getButtonPress(DOWN_BUTTON)){
+			packages--;
+			eraseDisplay();
+
+		if (packages <= 0){
+			displayString(5, "Packages must be >0");
+			displayString(7, "Restarted to 1");
+			packages = 1;
+		}
+
+	displayString(3, "Num packages: %d", packages);
+	wait1Msec(1000);
+
+	}//down
+
+		}//while
+		while(getButtonPress(ENTER_BUTTON)){}
+}//right button
+
+	if (getButtonPress(LEFT_BUTTON)){
+		eraseDisplay();
+		packages = 1000;
+		displayString(3, "Fully unload plane");
+		displayString(5, "Enter to continue");
+		while(!getButtonPress(ENTER_BUTTON)){}
+		while(getButtonPress(ENTER_BUTTON)){}
+		eraseDisplay();
+	}
+
+	return packages;
+}//menu
+
 
 task main()
 {
+	
 //COLOUR: S1, S3
 //GYRO: S4
 //ULTRA: S2
@@ -25,157 +243,47 @@ task main()
     wait1Msec(50);
 
     nMotorEncoder(motorA)=0;
-}
+    
+while (!getButtonPress(ENTER_BUTTON)){}
+while (getButtonPress(ENTER_BUTTON)){}
 
-void Drive(int speed)
-{
-	motor[motorA]=motor[motorD]=speed;
-}
+int packages = menu();
 
-void Turn(int angle, int speed)
-{
-	if (angle < 0){
-		motor[motorA] = speed; //assume counterclockwise is "-"
-		motor[motorD] = (-1*speed);
-	}
-
-	motor[motorA] = (-1 * speed);
-	motor[motorD] = speed;
-	while(getGyroDegrees(S4)<(angle))
-	{}
-
-}
-
-
-void Claw(bool open_or_close){
-	}
-
-int stickerColour(int colour)
-{
-SensorValue[S1]= colour;
-if (colour==1 || colour==3 || colour==5)
-{
-followLine(colour);
-return colour;
-}
-else
-{
-
-displayString(5,"No colour")
-}
-}
-
-
-
-void goHome(string output, int colour){
-	//follows line backwards
-turn(1);
-turn(1);
-while(SensorValue[S1]!=colour){
-	//stops robot
-	Drive(0);
-	//turns 90 degrees right
-	turn(1);
-}
-//after turn run again
-goHome(colour);
-//prints string(could be error or success message
-displayString(2,output);
-}
-
-
-void followLine(int colour){
-if(SensorValue[S1]==colour){
-	//start drive
-Drive(50);}
-ultrasonic(10)
-//if break(or turn) loop turns 90 degrees until sensor value is found
-int count=0;
-while(SensorValue[S1]!=colour){
-	//stops robot
-	Drive(0);
-	//turns 90 degrees right
-	turn(1);
-	count++;
-	//if has turned 4 times there is no line, go back to start
-	if(count==4){
-		goHome("Cannot find line", colour);
-	}
-
-}
-//after sensor value is found follow colour again
-//if just turned then will still be in correct direction
-followLine(colour);
-}
-
-
-void ultrasonic(double distance)
-{
-	while ()
-{
-		if (Sensorvalue[S2]>distance)
-		{
-			Drive(50)
-		}
-			else
-			{
-				timer1[T1]=0;
-				while (timer1[T1]<30000||SensorValue[S2]<distance)
-				{
-					Drive(0);
-					if (sensorValue[S2]>distance)
-					{
-							Drive(50);
-					}
-					}
-if (timer1[T1]==30000 && SensorValue[S2]<=distance)
-{
-	goHome()
-}
-
-}
-
-void goofy()
-{
-	if (motor[motorA]==motor[motorD]==0)
-{
-	motor[motorA]=50;
-	motor[motorD]=-50;
-	wait1Msec(3000);
+for (int index = 0; index < packages; index++){
 	
-	motor[motorD]=50;
-	motor[motorA]=-50;
-	wait1Msec (3000);
-	
-	motor[motorA]=70;
-	motor[motorD]=-70;
-	wait1Msec(1000);
-	
-	motor[motorD]=70;
-	motor[motorA]=-70;
-	wait1Msec(1000);
-	}	
-	
-	
-	
-}
-
-
-task main()
-{
-	configuresensors
-while (getButtonPress(ENTER_BUTTON))
-{
-	claw(0)
-	stickercolour()
-	claw(1)
-	gohome()
 	timer1[T1]=0;
 	while(timer1[T1]<20000||!getButtonPress(ENTER_BUTTON))
-	{}
-}
-goofy()
-}
+	{
+		displayString(3, "%d", timer[t1]);
+		if (timer[t1] == 20000){
+			eraseDisplay();
+			displayString(5, "Time limit has been exceeded");
+		}
+	}
+	
+	while(getButtonPress(ENTER_BUTTON)){}
+	claw(0);
+	while (SensorValue[S4] < 180){
+		motor[motorA] = -50;
+		motor[motorD] = 50;
+	}
+	
+	int color = stickercolour();
+	if (color = 10){
+		motor
+	}
+	followLine(color);
+	claw(1);
+	goHome();//needs further attention
+	
+	
+	
+	
+}//for
+
+goofy();
+
+}//task main
 
 
 
