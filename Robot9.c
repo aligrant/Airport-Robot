@@ -228,6 +228,13 @@ displayString(7, "Right Button: # packages");
 	return packages;
 }//menu
 
+void findline(int colour)
+{
+	Drive(50);
+	while (sensorValue[S3]!=colour){}
+	turn(90,50);	
+	
+}
 
 task main()
 {
