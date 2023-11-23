@@ -1,23 +1,58 @@
+void Stop(){
+	motor[motorA]=motor[motorD]=0;
+	return;
+}
+
+void turn(int angle, int speed){
+	resetGyro(S4);
+	if (-angle < 0){//right
+		motor[motorA] = speed; //assume counterclockwise is "-"
+		motor[motorD] = 0;
+		while(getGyroDegrees(S4)<(angle))
+		{}
+	}
+	else{//left
+		motor[motorA] =-speed;
+		motor[motorD] = 0;
+		while(getGyroDegrees(S4)>(angle))
+		{}
+	}
+
+	Stop();
+}
+
+void followLine(int colour)//tested :)
+{
+	float TO_CM = 2*PI*2.75/360;
+	float dist_to_line=1;
+	if(SensorValue[S3]!=colour){
+		motor[motorA]=motor[motorD]=1;
+		while(SensorValue[S3]!=colour){}
+	}
+	turn(45,50);
+	//drive 10cm
+	for(int count=0; count<300||SensorValue[S3]==1;count++){//exit loop when reaches the different colour as well
+		nMotorEncoder[motorD]=0;
+		motor[motorA]=motor[motorD]=20;
+		while(nMotorEncoder[motorD]*TO_CM<5){}
+		displayString(3,"more than 5");
+		Stop();
+		turn(-75,50);
+		motor[motorA]=motor[motorD]=20;
+		while(SensorValue[S3]!=colour){}
+		Stop();
+		float dist_to_line=nMotorEncoder[motorD]*TO_CM;
+		float angle=atan(10/dist_to_line)*180/PI;
+		//float angle = asin((5*sin(135))/(sqrt(25+(pow(dist_to_line,2)+10*dist_to_line)))*180/PI;
+		turn(2*angle,50);
+
+	}
+}//add different colour at destination to stop followline
+
 void Drive(int speed)//trivial  TESTED
 {
 	motor[motorA]=motor[motorD]=speed;
 }
-
-
-void Turn(int angle, int speed)//trivial TESTED
-{
-	if (angle < 0){
-		motor[motorA] = speed; //assume counterclockwise is "-"
-		motor[motorD] = (-1*speed);
-	}
-
-	motor[motorA] = (-1 * speed);
-	motor[motorD] = speed;
-	while(getGyroDegrees(S4)<(angle))
-	{}
-
-}
-
 
 void claw_axis(bool open){//non-trivial  TESTED
 	if (open)//close and go up
@@ -25,20 +60,20 @@ void claw_axis(bool open){//non-trivial  TESTED
 		motor[motorC] = -20;
 		wait1Msec(2000);
 		motor[motorC] = 0;
-		
+
 		/* y axis
 		motor[motorB] = 20;
 		wait1Msec(2000);
 		motor[motorB] = 0;
 		*/
-	} 
+	}
 	else if (!open)// go down then open
 	{
 		/* y axis
 		motor[motorB] = -20;
 		wait1Msec(2000);
 		motor[motorB] = 0;
-	*/
+		*/
 		motor[motorC] = 20;
 		wait1Msec(2000);
 		motor[motorC] = 0;
@@ -47,175 +82,148 @@ void claw_axis(bool open){//non-trivial  TESTED
 
 
 int stickerColour(){//non-trival  TESTED
-int colour;
-wait1Msec(1000);
-colour = SensorValue[S1];
-wait1Msec(1000);
+	int colour;
+	wait1Msec(1000);
+	colour = SensorValue[S1];
+	wait1Msec(1000);
 
-if (colour == 5){//red
-	displayString(3, "The color you have selected:");
-	displayString(5, "Red");
+	if (colour == 5){//red
+		displayString(3, "The color you have selected:");
+		displayString(5, "Red");
+		wait1Msec(5000);
+		} else if (colour == 3){
+		displayString(3, "The color you have selected:");
+		displayString(5, "Green");
+		} else if (colour == 1){
+		displayString(3, "The color you have selected:");
+		displayString(5, "Black");
+		} else {
+		colour = 10;
+		displayString(3, "No colour detected");
+
+		resetGyro(S4);
+		motor[motorA]= -12;
+		motor[motorD] = 12;
+		while(SensorValue[S4] > 180){}
+		displayString(3, "Error Code");
+		displayString(5, ":10");
+		return colour;
+	}
+
 	wait1Msec(5000);
-} else if (colour == 3){
-	displayString(3, "The color you have selected:");
-	displayString(5, "Green");
-} else if (colour == 1){
-	displayString(3, "The color you have selected:");
-	displayString(5, "Black");
-} else {
-	colour = 10;
-	displayString(3, "No colour detected");
-	
-	resetGyro(S4);
-	motor[motorA]= -12;
-	motor[motorD] = 12;
-	while(SensorValue[S4] > 180){}
-	displayString(3, "Error Code");
-	displayString(5, ":10");
+	eraseDisplay();
+
+	displayString(7, "Enter to continue");
+	while(!getButtonPress(ENTER_BUTTON)){}
+	while(getButtonPress(ENTER_BUTTON)){}
 	return colour;
-}
-
-wait1Msec(5000);
-eraseDisplay();
-
-displayString(7, "Enter to continue");
-while(!getButtonPress(ENTER_BUTTON)){}
-while(getButtonPress(ENTER_BUTTON)){}
-return colour;
 }//sticker
 
 
 void goHome(string output, int colour){//non-trivial  NEED WORK
 	//follows line backwards
-turn(1);
-turn(1);
-while(SensorValue[S1]!=colour){
-	//stops robot
-	Drive(0);
-	//turns 90 degrees right
-	turn(1);
-}
-//after turn run again
-goHome(colour);
-//prints string(could be error or success message
-displayString(2,output);
-}
-
-
-void followLine(int colour){//non-trivial NEED WORK
-if(SensorValue[S1]==colour){
-	//start drive
-Drive(50);}
-ultrasonic(10)
-//if break(or turn) loop turns 90 degrees until sensor value is found
-int count=0;
-while(SensorValue[S1]!=colour){
-	//stops robot
-	Drive(0);
-	//turns 90 degrees right
-	turn(1);
-	count++;
-	//if has turned 4 times there is no line, go back to start
-	if(count==4){
-		goHome("Cannot find line", colour);
+	turn(180,50);
+	followLine(colour);
+		//turns 90 degrees right
+		turn(-90,50);
+		Drive(50);
 	}
-
+	//after turn run again
+	goHome(colour);
+	//prints string(could be error or success message
+	displayString(2,output);
 }
-//after sensor value is found follow colour again
-//if just turned then will still be in correct direction
-followLine(colour);
-}
 
-int ultrasonic(){// TESTED 
+int ultrasonic(){// TESTED
 	int const MAX = 30;
-	
+
 	if (SensorValue[S2] > MAX){
 		return 1;
 	}
-	
+
 	clearTimer(T1);
 	while(time1(T1) <= 5000){
-	if (SensorValue[S2] > 30){
-	eraseDisplay();
-	displayString(3, "Path clear");
-	displayString(5, "Enter to continue");
-	wait1Msec(1000);
-	
-	while(!getButtonPress(ENTER_BUTTON)){}
-	while(getButtonPress(ENTER_BUTTON)){}
-	eraseDisplay();
-	return 1;
-}//if
-	
+		if (SensorValue[S2] > 30){
+			eraseDisplay();
+			displayString(3, "Path clear");
+			displayString(5, "Enter to continue");
+			wait1Msec(1000);
+
+			while(!getButtonPress(ENTER_BUTTON)){}
+			while(getButtonPress(ENTER_BUTTON)){}
+			eraseDisplay();
+			return 1;
+		}//if
+
 	}//while
-	
+
 	eraseDisplay();
 	displayString(3, "Time limit exceeded");
 	displayString(5, "Returning home");
 	eraseDisplay();
 	return 0;
-	
+
 }//ultrasonic
 
 void goofy()//non-trivial
 {
 	if (motor[motorA]==motor[motorD]==0)
-{
-	motor[motorA]=50;
-	motor[motorD]=-50;
-	wait1Msec(3000);
-	
-	motor[motorD]=50;
-	motor[motorA]=-50;
-	wait1Msec (3000);
-	
-	motor[motorA]=70;
-	motor[motorD]=-70;
-	wait1Msec(1000);
-	
-	motor[motorD]=70;
-	motor[motorA]=-70;
-	wait1Msec(1000);
-	}	
+	{
+		motor[motorA]=50;
+		motor[motorD]=-50;
+		wait1Msec(3000);
+
+		motor[motorD]=50;
+		motor[motorA]=-50;
+		wait1Msec (3000);
+
+		motor[motorA]=70;
+		motor[motorD]=-70;
+		wait1Msec(1000);
+
+		motor[motorD]=70;
+		motor[motorA]=-70;
+		wait1Msec(1000);
+	}
 }
 
-int menu(){//non trivial  TESTED 
-int packages = 1;
-displayString(3, "Please Pick a mode");
-displayString(5, "Left Button: PLANE");
-displayString(7, "Right Button: # packages");
+int menu(){//non trivial  TESTED
+	int packages = 1;
+	displayString(3, "Please Pick a mode");
+	displayString(5, "Left Button: PLANE");
+	displayString(7, "Right Button: # packages");
 
 	while((!getButtonPress(RIGHT_BUTTON))&&(!getButtonPress(LEFT_BUTTON))){}
-		if (getButtonPress(RIGHT_BUTTON)){
-			eraseDisplay();
-			displayString(3, "Num packages: %d", packages);
+	if (getButtonPress(RIGHT_BUTTON)){
+		eraseDisplay();
+		displayString(3, "Num packages: %d", packages);
 
-	while(!getButtonPress(ENTER_BUTTON)){
-		if (getButtonPress(UP_BUTTON)){
-			eraseDisplay();
-			packages++;
-			displayString(3, "Num packages: %d", packages);
-			wait1Msec(1000);
-		}//if
+		while(!getButtonPress(ENTER_BUTTON)){
+			if (getButtonPress(UP_BUTTON)){
+				eraseDisplay();
+				packages++;
+				displayString(3, "Num packages: %d", packages);
+				wait1Msec(1000);
+			}//if
 
-		if (getButtonPress(DOWN_BUTTON)){
-			packages--;
-			eraseDisplay();
+			if (getButtonPress(DOWN_BUTTON)){
+				packages--;
+				eraseDisplay();
 
-		if (packages <= 0){
-			displayString(5, "Packages must be >0");
-			displayString(7, "Restarted to 1");
-			packages = 1;
-		}
+				if (packages <= 0){
+					displayString(5, "Packages must be >0");
+					displayString(7, "Restarted to 1");
+					packages = 1;
+				}
 
-	displayString(3, "Num packages: %d", packages);
-	wait1Msec(1000);
+				displayString(3, "Num packages: %d", packages);
+				wait1Msec(1000);
 
-	}//down
+			}//down
 
 		}//while
 		while(getButtonPress(ENTER_BUTTON)){}
-}//right button
+	}//right button
 
 	if (getButtonPress(LEFT_BUTTON)){
 		eraseDisplay();
@@ -234,75 +242,75 @@ void findline(int colour)
 {
 	Drive(50);
 	while (sensorValue[S3]!=colour){}
-	turn(90,50);	
-	
+	turn(90,50);
+
 }
 
 task main()
 {
-	
-//COLOUR: S1, S3
-//GYRO: S4
-//ULTRA: S2
-    SensorType[S1] = sensorEV3_Color;
-    wait1Msec(50);
-    SensorMode[S1] = modeEV3Color_Color;
-    wait1Msec(100);
 
-    SensorType[S2] = sensorEV3_Ultrasonic;
-    wait1Msec(50);
+	//COLOUR: S1, S3
+	//GYRO: S4
+	//ULTRA: S2
+	SensorType[S1] = sensorEV3_Color;
+	wait1Msec(50);
+	SensorMode[S1] = modeEV3Color_Color;
+	wait1Msec(100);
 
-    SensorType[S3] = sensorEV3_Color;
-    wait1Msec(50);
-    SensorMode[S3] = modeEV3Color_Color;
-    wait1Msec(100);
+	SensorType[S2] = sensorEV3_Ultrasonic;
+	wait1Msec(50);
 
-    SensorType[S4] = sensorEV3_Gyro;
-    wait1Msec(50);
-    SensorMode[S4] = modeEV3Gyro_Calibration;
-    wait1Msec(100);
-    SensorMode[S4] = modeEV3Gyro_RateAndAngle;
-    wait1Msec(50);
+	SensorType[S3] = sensorEV3_Color;
+	wait1Msec(50);
+	SensorMode[S3] = modeEV3Color_Color;
+	wait1Msec(100);
 
-    nMotorEncoder(motorA)=0;
-    
-while (!getButtonPress(ENTER_BUTTON)){}
-while (getButtonPress(ENTER_BUTTON)){}
+	SensorType[S4] = sensorEV3_Gyro;
+	wait1Msec(50);
+	SensorMode[S4] = modeEV3Gyro_Calibration;
+	wait1Msec(100);
+	SensorMode[S4] = modeEV3Gyro_RateAndAngle;
+	wait1Msec(50);
 
-int packages = menu();
+	nMotorEncoder(motorA)=0;
 
-for (int index = 0; index < packages; index++){
-	timer1[T1]=0;
-	while(timer1[T1]<20000||!getButtonPress(ENTER_BUTTON))
-	{
-		displayString(3, "%d", timer[t1]);
-		if (timer[t1] == 20000){
-			eraseDisplay();
-			displayString(5, "Time limit has been exceeded");
+	while (!getButtonPress(ENTER_BUTTON)){}
+	while (getButtonPress(ENTER_BUTTON)){}
+
+	int packages = menu();
+
+	for (int index = 0; index < packages; index++){
+		timer1[T1]=0;
+		while(timer1[T1]<20000||!getButtonPress(ENTER_BUTTON))
+		{
+			displayString(3, "%d", timer[t1]);
+			if (timer[t1] == 20000){
+				eraseDisplay();
+				displayString(5, "Time limit has been exceeded");
+			}
 		}
-	}
-	
-	while(getButtonPress(ENTER_BUTTON)){}
-	claw(0);
-	while (SensorValue[S4] < 180){
-		motor[motorA] = -50;
-		motor[motorD] = 50;
-	}
-	
-	int color = stickercolour();
-	if (color = 10){
-		motor
-	}
-	followLine(color);
-	claw(1);
-	goHome();//needs further attention
-	
-	
-	
-	
-}//for
 
-goofy();
+		while(getButtonPress(ENTER_BUTTON)){}
+		claw(0);
+		while (SensorValue[S4] < 180){
+			motor[motorA] = -50;
+			motor[motorD] = 50;
+		}
+
+		int color = stickercolour();
+		if (color = 10){
+			motor
+		}
+		followLine(color);
+		claw(1);
+		goHome();//needs further attention
+
+
+
+
+	}//for
+
+	goofy();
 
 }//task main
 
