@@ -278,10 +278,11 @@ task main()
 	while (getButtonPress(ENTER_BUTTON)){}
 
 	int packages = menu();
-
-	for (int index = 0; index < packages; index++){
-		timer1[T1]=0;
-		while(timer1[T1]<20000||!getButtonPress(ENTER_BUTTON))
+	
+	clearTimer(T1);
+	time1[T1]=0;
+	for (int index = 0; index < packages && time[1] < 5000; index++){
+		while(timer1[T1]<20000 && !getButtonPress(ENTER_BUTTON))
 		{
 			displayString(3, "%d", timer[t1]);
 			if (timer[t1] == 20000){
