@@ -120,7 +120,7 @@ int stickerColour(){//non-trival  TESTED
 }//sticker
 
 
-void goHome(string output, int colour){//non-trivial  NEED WORK
+void goHome(string output, int colour){//trivial  NEED WORK
 	//follows line backwards
 	turn(180,50);
 	followLine(colour);
