@@ -167,8 +167,9 @@ int ultrasonic(){// TESTED
 
 void goofy()//non-trivial
 {
-	if (motor[motorA]==motor[motorD]==0)
+	if (colour==1)
 	{
+		displayString(5, "HOORAY BLACK PACKAGE DELIVERED");
 		motor[motorA]=50;
 		motor[motorD]=-50;
 		wait1Msec(3000);
@@ -176,7 +177,11 @@ void goofy()//non-trivial
 		motor[motorD]=50;
 		motor[motorA]=-50;
 		wait1Msec (3000);
-
+		eraseDisplay();
+}
+if (colour==3)
+{
+		displayString(5, "HOORAY GREEN PACKAGE DELIVERED");
 		motor[motorA]=70;
 		motor[motorD]=-70;
 		wait1Msec(1000);
@@ -184,7 +189,23 @@ void goofy()//non-trivial
 		motor[motorD]=70;
 		motor[motorA]=-70;
 		wait1Msec(1000);
+		eraseDisplay();
 	}
+	if (colour==5)
+	{
+		displayString(5, "HOORAY RED PACKAGE DELIVERED");
+		Drive(50);
+		wait1Msec(1000);
+		Drive(-50);
+		wait1Msec(1000);
+		resetGyro(S4);
+		while (getGyroDegrees<360){
+		motor[motorA]=50;
+		motor[motorD]=-50;
+	}
+	Drive(0);
+		eraseDisplay();
+		}
 }
 
 int menu(){//non trivial  TESTED
