@@ -26,17 +26,19 @@ void claw_axis(bool open){//non-trivial  TESTED
 		wait1Msec(2000);
 		motor[motorC] = 0;
 		
+		/* y axis
 		motor[motorB] = 20;
 		wait1Msec(2000);
 		motor[motorB] = 0;
+		*/
 	} 
 	else if (!open)// go down then open
 	{
-		
+		/* y axis
 		motor[motorB] = -20;
 		wait1Msec(2000);
 		motor[motorB] = 0;
-	
+	*/
 		motor[motorC] = 20;
 		wait1Msec(2000);
 		motor[motorC] = 0;
@@ -83,8 +85,6 @@ return colour;
 }//sticker
 
 
-
-
 void goHome(string output, int colour){//non-trivial  NEED WORK
 	//follows line backwards
 turn(1);
@@ -126,33 +126,35 @@ while(SensorValue[S1]!=colour){
 followLine(colour);
 }
 
-int ultrasonic(){//non-trivial NEED WORK
-	const int MAX = 20;
-	int distance = SensorValue[S2];
-	if (distance > MAX)
-	{
-		return;
-	} 
-	else 
-	{
-		motor[motorA]=motor[motorD] = 0;
-		timer1[T1] = 0;
-		while(SensorValue[S4] < MAX || timer[T1] < 30000){}
-		
-		if (timer[T1] == 30000){
-			displayString(3, "Path is Blocked");
-			displayString(5, "Returning Home");
-			return 0;
-		}
-		
-		if (SensorValue[S4] > MAX){
-			displayString(3, "Path Clear");
-			displayString(5, "Enter to continue");
-			while(!getButtonPress(ENTER_BUTTON)){}
-			while(getButtonPress(ENTER_BUTTON)){}
-			return 1;
-		}
+int ultrasonic(){// TESTED 
+	int const MAX = 30;
+	
+	if (SensorValue[S2] > MAX){
+		return 1;
 	}
+	
+	clearTimer(T1);
+	while(time1(T1) <= 5000){
+	if (SensorValue[S2] > 30){
+	eraseDisplay();
+	displayString(3, "Path clear");
+	displayString(5, "Enter to continue");
+	wait1Msec(1000);
+	
+	while(!getButtonPress(ENTER_BUTTON)){}
+	while(getButtonPress(ENTER_BUTTON)){}
+	eraseDisplay();
+	return 1;
+}//if
+	
+	}//while
+	
+	eraseDisplay();
+	displayString(3, "Time limit exceeded");
+	displayString(5, "Returning home");
+	eraseDisplay();
+	return 0;
+	
 }//ultrasonic
 
 void goofy()//non-trivial
@@ -263,7 +265,6 @@ while (getButtonPress(ENTER_BUTTON)){}
 int packages = menu();
 
 for (int index = 0; index < packages; index++){
-	
 	timer1[T1]=0;
 	while(timer1[T1]<20000||!getButtonPress(ENTER_BUTTON))
 	{
