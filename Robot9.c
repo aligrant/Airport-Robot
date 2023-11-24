@@ -54,26 +54,26 @@ void Drive(int speed)//trivial  TESTED
 	motor[motorA]=motor[motorD]=speed;
 }
 
-void claw_axis(bool open){//non-trivial  TESTED
+void claw(bool open){//non-trivial  TESTED
 	if (open)//close and go up
 	{
 		motor[motorC] = -20;
 		wait1Msec(2000);
 		motor[motorC] = 0;
 
-		/* y axis
+	
 		motor[motorB] = 20;
 		wait1Msec(2000);
 		motor[motorB] = 0;
-		*/
+		
 	}
 	else if (!open)// go down then open
 	{
-		/* y axis
+		
 		motor[motorB] = -20;
 		wait1Msec(2000);
 		motor[motorB] = 0;
-		*/
+		
 		motor[motorC] = 20;
 		wait1Msec(2000);
 		motor[motorC] = 0;
@@ -83,24 +83,31 @@ void claw_axis(bool open){//non-trivial  TESTED
 
 int stickerColour(){//non-trival  TESTED
 	int colour;
-	wait1Msec(1000);
 	colour = SensorValue[S1];
 	wait1Msec(1000);
 
-	if (colour == 5){//red
+	if (colour == 5)
+	{//red
 		displayString(3, "The color you have selected:");
 		displayString(5, "Red");
 		wait1Msec(5000);
-		} else if (colour == 3){
+		} 
+		else if (colour == 3)
+		{
 		displayString(3, "The color you have selected:");
 		displayString(5, "Green");
-		} else if (colour == 1){
+		wait1Msec(5000);
+		} 
+		else if (colour == 1)
+		{
 		displayString(3, "The color you have selected:");
 		displayString(5, "Black");
-		} else {
+		wait1Msec(5000);
+		} 
+		else 
+		{
 		colour = 10;
 		displayString(3, "No colour detected");
-
 		resetGyro(S4);
 		motor[motorA]= -12;
 		motor[motorD] = 12;
@@ -110,9 +117,8 @@ int stickerColour(){//non-trival  TESTED
 		return colour;
 	}
 
-	wait1Msec(5000);
+	wait1Msec(500);
 	eraseDisplay();
-
 	displayString(7, "Enter to continue");
 	while(!getButtonPress(ENTER_BUTTON)){}
 	while(getButtonPress(ENTER_BUTTON)){}
@@ -136,13 +142,12 @@ void goHome(string output, int colour){//trivial  NEED WORK
 
 int ultrasonic(){// TESTED
 	int const MAX = 30;
-
 	if (SensorValue[S2] > MAX){
 		return 1;
 	}
 
-	clearTimer(T1);
-	while(time1(T1) <= 5000){
+	clearTimer(T2);
+	while(time2(T2) <= 5000){
 		if (SensorValue[S2] > 30){
 			eraseDisplay();
 			displayString(3, "Path clear");
@@ -165,7 +170,7 @@ int ultrasonic(){// TESTED
 
 }//ultrasonic
 
-void goofy()//non-trivial
+void goofy(int colour)//non-trivial
 {
 	if (colour==1)
 	{
@@ -269,7 +274,6 @@ void findline(int colour)
 
 task main()
 {
-
 	//COLOUR: S1, S3
 	//GYRO: S4
 	//ULTRA: S2
@@ -297,43 +301,58 @@ task main()
 
 	while (!getButtonPress(ENTER_BUTTON)){}
 	while (getButtonPress(ENTER_BUTTON)){}
-
-	int packages = menu();
 	
-	clearTimer(T1);
-	time1[T1]=0;
-	for (int index = 0; index < packages && time[1] < 5000; index++){
-		while(timer1[T1]<20000 && !getButtonPress(ENTER_BUTTON))
-		{
-			displayString(3, "%d", timer[t1]);
-			if (timer[t1] == 20000){
-				eraseDisplay();
-				displayString(5, "Time limit has been exceeded");
-			}
-		}
+	
+	
+	
+	int packages = menu();
+	int exitValue = 0;
+	for (int index = 0; index < packages && exitValue < 1; index++){
+		
 
+		clearTimer(T1);
+		displayString(3, "Press Enter to Start");
+		while (time1[1] <= 5000){
+			displayString(3, "Time: %d", time1[T1]/1000 )
+			wait1Msec(500);
+		}
+		if (time1 == 5000){
+			eraseDisplay();
+			displayString(5, "Time limit exceeded");
+			exitValue = 1;
+		}
+		while(!getButtonPress(ENTER_BUTTON)){}
 		while(getButtonPress(ENTER_BUTTON)){}
-		claw(0);
-		while (SensorValue[S4] < 180){
-			motor[motorA] = -50;
-			motor[motorD] = 50;
-		}
-
+	
+		Drive(10);
+		while(SensorValue[S3] == 2){}
+		claw(1);//value is true, claw clses and picks up object
+		wait1Msec(1000);
+		
 		int color = stickercolour();
-		if (color = 10){
-			motor
+		if (color == 10){
+			Stop();
+			wait1Msec(1000);
+			timerValue = 1;
 		}
+		findline(color);
 		followLine(color);
-		claw(1);
+		claw(0);
 		goHome();//needs further attention
-
-
-
-
+		goofy();
 	}//for
-
-	goofy();
-
+	
+	if (exitValue == 1){
+		eraseDisplay();
+		wait1Msec(1000);
+		displayString(5, "An Error Occured!");
+		displayString(7, "Please try again!");
+	} else {
+		eraseDisplay();
+		wait1Msec(1000);
+		displayString(5, "Packages delivered!");
+		displayString(7, "YIPEEEEEE");
+	}
 }//task main
 
 
