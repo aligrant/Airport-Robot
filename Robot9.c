@@ -1,9 +1,9 @@
-void Stop(){
+void Stop(){//trivial
 	motor[motorA]=motor[motorD]=0;
 	return;
 }
 
-void turn(int angle, int speed){
+void turn(int angle, int speed){ //trivial
 	resetGyro(S4);
 	if (-angle < 0){//right
 		motor[motorA] = speed; //assume counterclockwise is "-"
@@ -21,7 +21,7 @@ void turn(int angle, int speed){
 	Stop();
 }
 
-void followLine(int colour)//tested :)
+void followLine(int colour)//tested :) nontrivial
 {
 	float TO_CM = 2*PI*2.75/360;
 	float dist_to_line=1;
@@ -126,18 +126,29 @@ int stickerColour(){//non-trival  TESTED
 }//sticker
 
 
-void goHome(string output, int colour){//trivial  NEED WORK
+int goHome(int colour){//trivial  NEED WORK
 	//follows line backwards
-	turn(180,50);
+	displayString(3, "Press Enter to return");
+	while(!getButtonPress(ENTER_BUTTON)){}
+	while(getButtonPress(ENTER_BUTTON)){}
+	eraseDisplay();
+	turn(180,12);
 	followLine(colour);
-		//turns 90 degrees right
-		turn(-90,50);
-		Drive(50);
+	
+	eraseDisplay();
+	displayString(3, "Returned home");
+	displayString(5, "Open claw?");
+	displayString(7, "UP = Y, DOWN =N ");
+	
+	if (getButtonPress(UP_BUTTON)){
+		return 1;
 	}
-	//after turn run again
-	goHome(colour);
-	//prints string(could be error or success message
-	displayString(2,output);
+	
+	if (getButtonPress(UP_BUTTON)){
+		return 0;
+	}
+	while(!getButtonPress(ANY_BUTTON)){}
+	while(getButtonPress(ANY_BUTTON)){}
 }
 
 int ultrasonic(){// TESTED
@@ -302,46 +313,44 @@ task main()
 	while (!getButtonPress(ENTER_BUTTON)){}
 	while (getButtonPress(ENTER_BUTTON)){}
 	
-	
-	
-	
 	int packages = menu();
 	int exitValue = 0;
 	for (int index = 0; index < packages && exitValue < 1; index++){
-		
-
 		clearTimer(T1);
 		displayString(3, "Press Enter to Start");
 		while (time1[1] <= 5000){
-			displayString(3, "Time: %d", time1[T1]/1000 )
+			displayString(3, "Time: %d", time1[T1]/1000);
 			wait1Msec(500);
 		}
-		if (time1 == 5000){
+		if (time1[T1] == 5000){
 			eraseDisplay();
 			displayString(5, "Time limit exceeded");
 			exitValue = 1;
 		}
 		while(!getButtonPress(ENTER_BUTTON)){}
 		while(getButtonPress(ENTER_BUTTON)){}
-	
+
 		Drive(10);
-		while(SensorValue[S3] == 2){}
+		while(SensorValue[S3] == 1){}
 		claw(1);//value is true, claw clses and picks up object
 		wait1Msec(1000);
-		
-		int color = stickercolour();
+
+		int color = stickerColour();
 		if (color == 10){
 			Stop();
 			wait1Msec(1000);
-			timerValue = 1;
+			exitValue = 1;
 		}
 		findline(color);
 		followLine(color);
 		claw(0);
-		goHome();//needs further attention
-		goofy();
+		int open = goHome(color);
+		if (open == 1){
+			claw(0);
+		}
+		goofy(color);
 	}//for
-	
+
 	if (exitValue == 1){
 		eraseDisplay();
 		wait1Msec(1000);
@@ -354,11 +363,6 @@ task main()
 		displayString(7, "YIPEEEEEE");
 	}
 }//task main
-
-
-
-
-
 
 /*FUNCTIONS
 
